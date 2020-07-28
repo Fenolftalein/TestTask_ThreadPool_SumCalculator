@@ -1,13 +1,15 @@
 #include "thread_pool.h"
 
 
-ThreadPool::ThreadPool()
+ThreadPool::ThreadPool(std::size_t numThreads)
 {
-    const std::size_t threadCount {
-        std::max(std::thread::hardware_concurrency(), 4u)};
+    if (!numThreads)
+    {
+        numThreads = std::thread::hardware_concurrency();
+    }
 
-    threads_.reserve(threadCount);
-    for (std::size_t i{}; i < threadCount; ++i)
+    threads_.reserve(numThreads);
+    for (std::size_t i{}; i < numThreads; ++i)
     {
         threads_.emplace_back(&ThreadPool::runTask, this);
     }

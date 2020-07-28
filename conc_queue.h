@@ -2,8 +2,7 @@
 // Created by vladislav.saenko on 27.07.2020.
 //
 
-#ifndef DISNEY_PLUS_CONC_QUEUE_H
-#define DISNEY_PLUS_CONC_QUEUE_H
+#pragma once
 
 #include <queue>
 #include <mutex>
@@ -27,6 +26,3 @@ private:
 
 
 #include "conc_queue.inl"
-
-
-#endif //DISNEY_PLUS_CONC_QUEUE_H

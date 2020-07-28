@@ -9,5 +9,6 @@ int main()
     test::singleThreadAverage();
     test::multiThreadsAverage();
     test::threadPoolAverage();
+//    test::threadPoolAverage2();
     return 0;
 }

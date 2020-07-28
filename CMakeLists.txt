@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(disney_plus)
+project(thread_pool)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(disney_plus
+add_executable(thread_pool
         main.cpp
         conc_queue.h
         conc_queue.inl
@@ -13,4 +13,7 @@ add_executable(disney_plus
         thread_pool.cpp
         utils.h
         tests.h
-        tests.cpp)
+        tests.cpp
+
+        calculator.h
+        calculator.cpp)

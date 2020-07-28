@@ -60,6 +60,9 @@ private:
 };
 
 //==================================================================
+
+#define LOG_QUEUE 0
+
 template <typename T = std::int64_t>
 class ProducerConsumerTester
 {
@@ -71,9 +74,11 @@ public:
         for (T i{}; i < count; ++i)
         {
             q.push(i);
+#if LOG_QUEUE
             // for demonstration of parallel work
             std::cout << "thread "
                 << std::this_thread::get_id() << ": pushed " << i << "\n";
+#endif
         }
         done_ = true;
     }
@@ -85,10 +90,11 @@ public:
             T item{};
             q.wait_pop(item);
             res_ += item;
+#if LOG_QUEUE
             // for demonstration of parallel work
             std::cout << "thread "
                 << std::this_thread::get_id() << ": got " << item << "\n";
-
+#endif
             if (done_ && q.empty())
                 break;
         }

@@ -2,8 +2,7 @@
 // Created by vladislav.saenko on 27.07.2020.
 //
 
-#ifndef DISNEY_PLUS_TESTS_H
-#define DISNEY_PLUS_TESTS_H
+#pragma once
 
 namespace test
 {
@@ -13,6 +12,5 @@ namespace test
     void singleThreadAverage();
     void multiThreadsAverage();
     void threadPoolAverage();
+    void threadPoolAverage2();
 }
-
-#endif //DISNEY_PLUS_TESTS_H

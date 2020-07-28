@@ -12,24 +12,36 @@
 
 #include "utils.h"
 #include "thread_pool.h"
-
+//#include "calculator.h"
 
 namespace
 {
     using Int = std::int64_t;
     using Vector = std::vector<Int>;
-    using Iterator = std::vector<Int>::iterator;
 
     constexpr const Int N{100'000'000};
 
+    template <typename Iterator>
     void sumBlockWithInit (Iterator first, Iterator last, Int& result)
     {
         result = std::accumulate(first, last, result);
     }
 
+    template <typename Iterator>
     Int sumBlock(Iterator first, Iterator last)
     {
         return std::accumulate(first, last, Int{});
+    }
+
+    template <class Futures>
+    Int sumFutures(Futures&& futures)
+    {
+        Int res{};
+        for (auto& f : futures)
+        {
+            res += f.get();
+        }
+        return res;
     }
 
     struct DoubleEqual
@@ -162,7 +174,7 @@ void test::multiThreadsAverage()
             std::advance(blockEnd, blockSize);
 
             threads[i] = std::thread(
-                sumBlockWithInit,
+                sumBlockWithInit<Vector::iterator>,
                 blockStart,
                 blockEnd,
                 std::ref(results[i]));
@@ -195,38 +207,52 @@ void test::threadPoolAverage()
     double given{};
     {
         const std::size_t numThreads{
-            std::max(
-                std::thread::hardware_concurrency(),
-                4u)};
+            std::max(std::thread::hardware_concurrency(), 4u)};
 
-        const std::size_t blockSize = N / numThreads;
+        const auto blockSumsCount {numThreads - 2};
 
-        ThreadPool tp;
-        std::vector<std::future<Int>> futures(numThreads - 1);
+        ThreadPool tp{numThreads};
+        std::vector<std::shared_future<Int>> futures(blockSumsCount);
+
+        const std::size_t blockSize = N / blockSumsCount;
 
         TimeLogger time("Thread pool average");
-        // sum by equal ranges
         auto blockStart = v.begin();
-        for(std::size_t i{}; i < (numThreads - 1); ++i)
+        for(std::size_t i{}; i < blockSumsCount; ++i)
         {
-            auto blockEnd = blockStart;
-            std::advance(blockEnd, blockSize);
+            auto blockEnd =
+                (i != blockSumsCount - 1)
+                ? blockStart + blockSize
+                : v.end();
 
-            futures[i] = tp.addTask(
-                [=] { return sumBlock(blockStart, blockEnd); });
-
+            futures[i] = tp.addTask([=] { return sumBlock(blockStart, blockEnd); });
             blockStart = blockEnd;
         }
 
-        // sum the rest elements
-        given = sumBlock(blockStart, v.end());
+//        for (auto& f : futures) { given += f.get(); } given /= N;
 
-        for (auto& f : futures)
-        {
-            given += f.get();
-        }
-        given /= N;
+        auto futureSum = tp.addTask(
+            [futuresMoved = std::move(futures)]
+            { return sumFutures(futuresMoved); });
+
+        given = futureSum.get() * 1.0 / N;
     }
     printResult(expected, given, DoubleEqual());
 }
 
+//
+//void test::threadPoolAverage2()
+//{
+//    Vector v(N);
+//    std::iota(v.begin(), v.end(), Int{1});
+//    const double expected{0.5 * (N + 1)};
+//    double given{};
+//    ThreadPool tp;
+//    Calculator calculator{v, tp};
+//    calculator.run();
+//
+//    auto res = calculator.result();
+//    res.wait();
+//    given = res.get();
+//    printResult(expected, given, DoubleEqual());
+//}

@@ -13,14 +13,17 @@
 class ThreadPool
 {
 public:
-    ThreadPool();
+    explicit ThreadPool(std::size_t numThreads);
     ~ThreadPool();
 
     ThreadPool(const ThreadPool&) = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
 
     template <typename Func>
-    std::future<std::result_of_t<Func()>> addTask(Func f);
+    std::shared_future<std::result_of_t<Func()>> addTask(Func f);
+
+    template <typename Func>
+    void addTaskNoReturn(Func&& f);
 
 private:
     void runTask();
