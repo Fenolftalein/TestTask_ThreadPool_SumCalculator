@@ -5,7 +5,7 @@ ThreadPool::ThreadPool(std::size_t numThreads)
 {
     if (!numThreads)
     {
-        numThreads = std::thread::hardware_concurrency();
+        numThreads = 4;
     }
 
     threads_.reserve(numThreads);
@@ -33,7 +33,19 @@ void ThreadPool::runTask()
     {
         if (decltype(queue_)::value_type task; queue_.try_pop(task))
         {
-            task();
+            (*task)();
         }
     }
+}
+
+
+void ThreadPool::addTask(TaskPtr&& f)
+{
+    queue_.push(std::move(f));
+}
+
+
+std::size_t ThreadPool::size() const
+{
+    return threads_.size();
 }

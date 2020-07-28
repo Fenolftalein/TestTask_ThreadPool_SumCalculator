@@ -11,15 +11,17 @@
 #include <numeric>
 
 #include "utils.h"
-#include "thread_pool.h"
-//#include "calculator.h"
+
+#include "calculator_pair.h"
+#include "calculator_range.h"
+
 
 namespace
 {
     using Int = std::int64_t;
     using Vector = std::vector<Int>;
 
-    constexpr const Int N{100'000'000};
+    constexpr const Int N{100'000};
 
     template <typename Iterator>
     void sumBlockWithInit (Iterator first, Iterator last, Int& result)
@@ -198,61 +200,41 @@ void test::multiThreadsAverage()
     printResult(expected, given, DoubleEqual());
 }
 
+//=====================================================
 
-void test::threadPoolAverage()
+void test::threadPoolAverageRanges()
 {
     Vector v(N);
     std::iota(v.begin(), v.end(), Int{1});
     const double expected{0.5 * (N + 1)};
     double given{};
+    ThreadPool tp;
+    CalculatorRange calculator{v};
+
     {
-        const std::size_t numThreads{
-            std::max(std::thread::hardware_concurrency(), 4u)};
+        TimeLogger time("Thread pool: ranges");
+        calculator.run(tp);
 
-        const auto blockSumsCount {numThreads - 2};
-
-        ThreadPool tp{numThreads};
-        std::vector<std::shared_future<Int>> futures(blockSumsCount);
-
-        const std::size_t blockSize = N / blockSumsCount;
-
-        TimeLogger time("Thread pool average");
-        auto blockStart = v.begin();
-        for(std::size_t i{}; i < blockSumsCount; ++i)
-        {
-            auto blockEnd =
-                (i != blockSumsCount - 1)
-                ? blockStart + blockSize
-                : v.end();
-
-            futures[i] = tp.addTask([=] { return sumBlock(blockStart, blockEnd); });
-            blockStart = blockEnd;
-        }
-
-//        for (auto& f : futures) { given += f.get(); } given /= N;
-
-        auto futureSum = tp.addTask(
-            [futuresMoved = std::move(futures)]
-            { return sumFutures(futuresMoved); });
-
-        given = futureSum.get() * 1.0 / N;
+        given = calculator.result().get();
     }
     printResult(expected, given, DoubleEqual());
 }
 
-//
-//void test::threadPoolAverage2()
-//{
-//    Vector v(N);
-//    std::iota(v.begin(), v.end(), Int{1});
-//    const double expected{0.5 * (N + 1)};
-//    double given{};
-//    ThreadPool tp;
-//    Calculator calculator{v, tp};
-//    calculator.run();
-//
-//    auto res = calculator.result();
-//    res.wait();
-//    given = res.get();
-//    printResult(expected, given, DoubleEqual());
-//}
+
+void test::threadPoolAveragePairs()
+{
+    Vector v(N);
+    std::iota(v.begin(), v.end(), Int{1});
+    const double expected{0.5 * (N + 1)};
+    double given{};
+    ThreadPool tp;
+    CalculatorPair calculator{v};
+
+    {
+        TimeLogger time("Thread pool: pairs");
+        calculator.run(tp);
+
+        given = calculator.result().get();
+    }
+    printResult(expected, given, DoubleEqual());
+}

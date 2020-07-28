@@ -11,6 +11,6 @@ namespace test
 
     void singleThreadAverage();
     void multiThreadsAverage();
-    void threadPoolAverage();
-    void threadPoolAverage2();
+    void threadPoolAverageRanges();
+    void threadPoolAveragePairs();
 }

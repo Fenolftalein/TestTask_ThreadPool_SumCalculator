@@ -7,30 +7,27 @@
 #include <vector>
 
 #include "conc_queue.h"
-#include "func_wrapper.h"
+#include "task_wrapper.h"
 
 
 class ThreadPool
 {
 public:
-    explicit ThreadPool(std::size_t numThreads);
+    explicit ThreadPool(
+        std::size_t numThreads = std::thread::hardware_concurrency());
+
     ~ThreadPool();
 
     ThreadPool(const ThreadPool&) = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
 
-    template <typename Func>
-    std::shared_future<std::result_of_t<Func()>> addTask(Func f);
+    void addTask(TaskPtr&& f);
 
-    template <typename Func>
-    void addTaskNoReturn(Func&& f);
-
+    std::size_t size() const;
 private:
     void runTask();
 
     std::atomic_bool done_{};
-    ConcurrentQueue<TaskWrapper> queue_;
+    ConcurrentQueue<TaskPtr> queue_;
     std::vector<std::thread> threads_;
 };
-
-#include "thread_pool.inl"
