@@ -1,0 +1,53 @@
+#
+# macOS
+#
+.DS_Store
+
+
+# vs/vscode CMake build
+build/
+out/
+
+# Clion build folder
+cmake-build-*/
+
+#
+# Windows
+#
+$RECYCLE.BIN/
+*.lnk
+Desktop.ini
+ehthumbs.db
+Thumbs.db
+*.exe
+
+CMake.*
+*.user
+*.VC.db
+*.VC.VC.opendb
+.vscode/
+.vs/
+*.nvuser
+*.iobj
+*.ipdb
+
+# Qt Creator
+*.creator.user
+
+# From execution of scripts or tag generation
+*.pyc
+*.pyo
+*.ctag
+
+# temporary files
+*.swp
+*~
+*.orig
+
+# resources and web files
+*.png
+*.jpg
+*.html
+*.pdf
+*.js.download
+*.css
