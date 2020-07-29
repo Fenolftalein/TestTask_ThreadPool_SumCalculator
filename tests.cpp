@@ -9,8 +9,6 @@
 #include <vector>
 #include <numeric>
 
-#include "utils.h"
-
 #include "calculator.h"
 
 
@@ -47,6 +45,37 @@ namespace
         std::cout << "===============\n";
         return error;
     }
+
+
+    class TimeLogger
+    {
+    public:
+        using time_type = std::chrono::steady_clock;
+
+        TimeLogger(const std::string msg)
+        {
+            std::cout << msg << std::endl;
+            start_ = time_type::now();
+        }
+
+        ~TimeLogger()
+        {
+            const auto dur {time_type::now() - start_};
+            auto mks = std::chrono::duration_cast<std::chrono::microseconds>(dur);
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+            std::cout << "Duration: ";
+            if (ms.count() < 1)
+            {
+                std::cout << mks.count() << " mks\n";
+            }
+            else
+            {
+                std::cout << ms.count() << " ms\n";
+            }
+        }
+    private:
+        std::chrono::time_point<time_type> start_;
+    };
 }
 
 

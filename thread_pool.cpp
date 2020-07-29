@@ -33,6 +33,7 @@ ThreadPool::~ThreadPool()
 void ThreadPool::destroy()
 {
     done_ = true;
+    queue_.close();
     for (auto& t : threads_)
     {
         if (t.joinable())
@@ -46,7 +47,7 @@ void ThreadPool::runTask()
 {
     while (!done_)
     {
-        if (decltype(queue_)::value_type task; queue_.try_pop(task))
+        if (decltype(queue_)::value_type task; queue_.pop(task))
         {
             task();
         }
