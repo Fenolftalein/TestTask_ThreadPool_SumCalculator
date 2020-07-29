@@ -7,17 +7,13 @@ add_executable(thread_pool
         main.cpp
         conc_queue.h
         conc_queue.inl
-        task_wrapper.h
         thread_pool.h
         thread_pool.cpp
         utils.h
         tests.h
         tests.cpp
 
-        calculator_base.h
+        calculator.h
+        calculator.cpp
 
-        calculator_pair.h
-        calculator_pair.cpp
-
-        calculator_range.h
-        calculator_range.cpp)
+        )

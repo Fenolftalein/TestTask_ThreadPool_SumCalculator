@@ -1,4 +1,5 @@
 #include "thread_pool.h"
+#include <iostream>
 
 
 ThreadPool::ThreadPool(std::size_t numThreads)
@@ -9,13 +10,27 @@ ThreadPool::ThreadPool(std::size_t numThreads)
     }
 
     threads_.reserve(numThreads);
-    for (std::size_t i{}; i < numThreads; ++i)
+    try
     {
-        threads_.emplace_back(&ThreadPool::runTask, this);
+        for (std::size_t i{}; i < numThreads; ++i)
+        {
+            threads_.emplace_back(&ThreadPool::runTask, this);
+        }
+    }
+    catch(...)
+    {
+        std::cerr << "Caught an exception in ThreadPool c-tor!\n";
+        destroy();
+        throw;
     }
 }
 
 ThreadPool::~ThreadPool()
+{
+    destroy();
+}
+
+void ThreadPool::destroy()
 {
     done_ = true;
     for (auto& t : threads_)
@@ -33,17 +48,14 @@ void ThreadPool::runTask()
     {
         if (decltype(queue_)::value_type task; queue_.try_pop(task))
         {
-            (*task)();
+            task();
+        }
+        else
+        {
+            std::this_thread::yield();
         }
     }
 }
-
-
-void ThreadPool::addTask(TaskPtr&& f)
-{
-    queue_.push(std::move(f));
-}
-
 
 std::size_t ThreadPool::size() const
 {

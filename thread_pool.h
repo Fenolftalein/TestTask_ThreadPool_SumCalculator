@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "conc_queue.h"
-#include "task_wrapper.h"
 
 
 class ThreadPool
@@ -21,13 +20,20 @@ public:
     ThreadPool(const ThreadPool&) = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
 
-    void addTask(TaskPtr&& f);
+    using FuncType = std::function<void()>;
+
+    template <typename Func>
+    void addTask(Func f)
+    {
+        queue_.push(FuncType(f));
+    }
 
     std::size_t size() const;
 private:
+    void destroy();
     void runTask();
 
     std::atomic_bool done_{};
-    ConcurrentQueue<TaskPtr> queue_;
+    ConcurrentQueue<FuncType> queue_;
     std::vector<std::thread> threads_;
 };

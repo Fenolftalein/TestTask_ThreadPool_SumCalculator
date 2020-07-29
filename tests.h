@@ -6,11 +6,6 @@
 
 namespace test
 {
-    void concurrentQueueSimple();
-    void concurrentQueueProducerConsumer();
-
-    void singleThreadAverage();
-    void multiThreadsAverage();
-    void threadPoolAverageRanges();
-    void threadPoolAveragePairs();
+    int threadPoolAverageRanges();
+    int threadPoolAveragePairs();
 }
